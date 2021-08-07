@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -40,7 +41,10 @@ public class SettingsActivity extends AppCompatActivity {
         startActivity(intent);
     }
     void toggle_edit(){
-        set_enable_all(shared_dir_et.isEnabled());
+        set_enable_all(!shared_dir_et.isEnabled());
+
+        Toast toast = Toast.makeText(getApplicationContext(), "tr"+String.valueOf(shared_dir_et.isEnabled()), Toast.LENGTH_SHORT);
+        toast.show();
     }
     void save(){
 
