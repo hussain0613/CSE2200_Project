@@ -13,7 +13,7 @@
         android:id="@+id/imageView"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:onClick="Settings"
+        android:onClick="go_to_settings"
         android:layout_margin="10dp"
         android:background="@color/cardview_light_background"
         android:backgroundTint="#FFFFFF"
