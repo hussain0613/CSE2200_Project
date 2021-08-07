@@ -3,19 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-<<<<<<< HEAD
-        <entry key="..\:/Users/mahim/AndroidStudioProjects/CSE2200_Project/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/mahim/AndroidStudioProjects/CSE2200_Project/app/src/main/res/layout/activity_main.xml" value="0.1" />
       </map>
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-=======
-        <entry key="..\:/Documents/CSE2200_Project/app/src/main/res/layout/activity_main.xml" value="0.264" />
-        <entry key="..\:/Documents/CSE2200_Project/app/src/main/res/layout/activity_settings.xml" value="0.264" />
-      </map>
-    </option>
-  </component>
->>>>>>> f8fbce2660075e8ea902ca1766587182ea3d9503
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
