@@ -5,8 +5,10 @@ import java.util.List;
 import fi.iki.elonen.NanoHTTPD;
 
 public class NanoServer extends NanoHTTPD {
-    public NanoServer(){
-        super("0.0.0.0", 9921);
+    Settings settings;
+    public NanoServer(Settings settings){
+        super(String.valueOf(settings.get("host")), (int)settings.get("port"));
+        this.settings = settings;
     }
 
     @Override

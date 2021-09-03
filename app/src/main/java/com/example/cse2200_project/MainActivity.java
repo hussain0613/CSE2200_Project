@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         settings = new Settings(this);
-        server = new NanoServer();
+        server = new NanoServer(settings);
 
         b = findViewById(R.id.button);
         tv = findViewById(R.id.textView);
@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
                     * haven to start server
                     * */
                     try {
+                        settings = new Settings(this);
+                        server = new NanoServer(settings); // an extremely inefficient way i think, should find something better
                         server.start();
                     } catch (IOException e) {
                         e.printStackTrace();
