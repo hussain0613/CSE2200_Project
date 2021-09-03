@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/statics/stylesheets/index.css">
+
+    <title>File Server: Error</title>
+</head>
+
+
+<body>
+    <div id="menu">
+        <a href="/">Home</a>
+        <form style="display: inline-block;" id = "search_form">
+            <input type="search" placeholder="search" id = "search_query_field" name = "query">
+            <input type="checkbox" name="search_checkbox" id="search_checkbox"> <label for="search_checkbox">full</label>
+            <button id="search_form_button">Search</button>
+        </form>
+        
+    </div>
+    <hr/>
+
+    <button id="msg_div_display_toggle_btn">Show Messages</button>
+    <div id = "msg_div" style="display: none;">
+        <h4>Messages</h4>
+        <ul id = "msg_ul">
+
+        </ul>
+        <button id = "clear_msgs_buttion">Clear Messages</button>
+    </div>
+
+    <div id = "body">
+        <h1>
+            File not found or permission denied
+        </h1>
+    </div>
+    
+
+    <script src="/statics/scripts/server_comm_functions.js"></script>
+    <script src="/statics/scripts/ui_control_functions.js"></script>
+    <script src="/statics/scripts/error.js"></script>
+</body>
+</html>

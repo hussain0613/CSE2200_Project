@@ -87,8 +87,8 @@ public class SettingsActivity extends AppCompatActivity {
         port_et.setText(String.valueOf(settings.get("port")));
 
         sub_dir_tb.setChecked((boolean) settings.get("share_sub_directory"));
-        upload_tb.setChecked((boolean) settings.get("upload_files_permission"));
-        mod_tb.setChecked((boolean) settings.get("modify_directories_permission"));
+        upload_tb.setChecked((boolean) settings.get("upload_permission"));
+        mod_tb.setChecked((boolean) settings.get("modify_permission"));
     }
     void set_to_file(){
         settings.set("shared_directory", shared_dir_et.getText().toString());
@@ -96,8 +96,8 @@ public class SettingsActivity extends AppCompatActivity {
         settings.set("port", Integer.parseInt(port_et.getText().toString()));
 
         settings.set("share_sub_directory", sub_dir_tb.isChecked());
-        settings.set("upload_files_permission", upload_tb.isChecked());
-        settings.set("modify_directories_permission", mod_tb.isChecked());
+        settings.set("upload_permission", upload_tb.isChecked());
+        settings.set("modify_permission", mod_tb.isChecked());
         settings.write_settings();
     }
 }

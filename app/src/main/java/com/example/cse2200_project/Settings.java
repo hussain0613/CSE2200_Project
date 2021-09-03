@@ -116,8 +116,8 @@ public class Settings implements Serializable {
         Toast.makeText(app.getApplicationContext(), "path: "+ path, Toast.LENGTH_SHORT).show();
         set("shared_directory", path);
         set("share_sub_directory", true);
-        set("upload_files_permission", true);
-        set("modify_directories_permission", false);
+        set("upload_permission", true);
+        set("modify_permission", false);
         set("host", "0.0.0.0");
         set("port", 9999);
     }
