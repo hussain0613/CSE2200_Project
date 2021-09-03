@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "CSE2200_Project"
 include ':app'
+include ':NonAndroid'
