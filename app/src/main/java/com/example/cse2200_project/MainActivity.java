@@ -6,21 +6,29 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView img_v;
     Button b;
     TextView tv;
+    Settings settings;
+    NanoServer server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        settings = new Settings(this);
+        server = new NanoServer(settings, getAssets());
+
         b = findViewById(R.id.button);
         tv = findViewById(R.id.textView);
+
+        tv.setText("No Server is Running");
 
         b.setOnClickListener(v-> {
                 if(b.getText().equals("Start")){
@@ -29,6 +37,13 @@ public class MainActivity extends AppCompatActivity {
                     /*
                     * haven to start server
                     * */
+                    try {
+                        settings = new Settings(this);
+                        server = new NanoServer(settings, getAssets()); // an extremely inefficient way i think, should find something better
+                        server.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else if(b.getText().equals("Stop")){
                     b.setText("Start");
@@ -36,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                     /*
                     * have to stop server
                     * */
+                    server.stop();
                 }
         });
     }

@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/statics/stylesheets/index.css">
+
+    <title>File Server</title>
+</head>
+
+
+<body>
+    <div id="menu">
+        <a href="/">Home</a>
+        <form style="display: inline-block;" id = "search_form">
+            <input type="search" placeholder="search" id = "search_query_field" name = "query" required>
+            <input type="checkbox" name="search_checkbox" id="search_checkbox"> <label for="search_checkbox">full</label>
+            <button id="search_form_button">Search</button>
+        </form>
+        
+    </div>
+    <hr/>
+
+    <button id="msg_div_display_toggle_btn">Show Messages</button>
+    <div id = "msg_div" style="display: none;">
+        <h4>Messages</h4>
+        <ul id = "msg_ul">
+
+        </ul>
+        <button id = "clear_msgs_buttion">Clear Messages</button>
+    </div>
+
+    <div id = "body">
+        <h3>
+            Current Directory: <span id = "current_directory_path_span"></span>
+        </h3>
+        <div id = "actions_menu">
+            <button id = "toggle_upload_files_btn" style="display: none;">Upload Files</button>
+            <button id = "toggle_upload_folder_btn" style="display: none;">Upload Folder</button>
+            <button id = "toggle_file_create_btn" style="display: none;">Create File</button>
+            <button id = "toggle_folder_create_btn" style="display: none;">Create Folder</button>
+
+            <div id = "upload_files_div" style="display: none;">
+                <form action="/upload_files?dir_path=/" id = "upload_files_form" enctype="multipart/form-data">
+                    <h4>Upload Files</h4>
+                    <input type="file" name="files" id="files" multiple required>
+                    <input type="submit" value="Upload" id = "upload_files_btn">
+                </form>
+            </div>
+
+            <div id = "upload_folder_div" style="display: none;">
+                <form action="">
+                    <h4>Upload Folder</h4>
+                    <input type="file" name="folder" id="folder" webkitdirectory="" directory="" value="Browse">
+                    <input type="submit" value="Upload" id = "upload_folder_btn">
+                </form>
+            </div>
+            
+            <div id = "create_file_div" style="display: none;">
+                <form action="">
+                    <h4>Create Files</h4>
+                    <input type="text" name="file_name" id="file name" placeholder="filename">
+                    <input type="submit" value="Create" id = "create_file_btn">
+                </form>
+            </div>
+            
+            <div id = "create_folder_div" style="display: none;">
+                <form action="" id = "create_folder_form">
+                    <h4>Create Folder</h4>
+                    <input type="text" name="folder_name" id="folder_name" placeholder="folder name" required>
+                    <input type="submit" value="Create" id = "create_folder_btn">
+                </form>
+            </div>
+        </div>
+        
+        <hr/>
+        <table id = "contents_table">
+            <thead>
+                <th>File Name</th>
+                <th class="text_center_align">File Size</th>
+                <th class="text_center_align">Date</th>
+                <th></th>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+
+    </div>
+    
+
+    <script src="/statics/scripts/server_comm_functions.js"></script>
+    <script src="/statics/scripts/ui_control_functions.js"></script>
+    <script src="/statics/scripts/index.js"></script>
+</body>
+</html>

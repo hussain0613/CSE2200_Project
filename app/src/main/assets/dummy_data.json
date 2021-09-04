@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "details": "successfully fetched all contents of dummy_directory",
+  "data": {
+    "current_directory": "/dummy_directory",
+    "parent_direcoty": null,
+    "contents": {
+      "/dummy_subdir1": {
+        "name": "dummy_subdir1",
+        "is_directory": true,
+        "size": "-",
+        "date": "2021-09-04 1:33AM GMT+6"
+      },
+      "/dummy_subdir2": {
+        "name": "dummy_subdir2",
+        "is_directory": true,
+        "size": "-",
+        "date": "2021-09-04 1:33AM GMT+6"
+      },
+      "/dummy_file1": {
+        "name": "dummy_file1",
+        "is_directory": false,
+        "size": "85 MB",
+        "date": "2021-09-04 1:34AM GMT+6"
+      },
+      "/dummy_file2": {
+        "name": "dummy_file2",
+        "is_directory": false,
+        "size": "65 MB",
+        "date": "2021-09-04 1:34AM GMT+6"
+      }
+    }
+  }
+}
