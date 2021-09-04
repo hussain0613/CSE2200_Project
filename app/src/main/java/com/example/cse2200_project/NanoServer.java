@@ -33,7 +33,7 @@ public class NanoServer extends NanoHTTPD {
         else if(uri.startsWith("/statics/")){
             resp = serve_statics(session);
         }
-        else if(uri.equals("/favicon.png")){
+        else if(uri.equals("/favicon.ico")){
             resp = serve_icon(session);
         }
         else if(uri.equals("/get_settings") || uri.equals("/get_settings/")){
@@ -89,7 +89,7 @@ public class NanoServer extends NanoHTTPD {
 //            System.out.println("********************** static fn: " + fn);
             return serve_file(assets.open(fn), getMimeTypeForFile(fn));
         }catch(IOException err){
-            err.printStackTrace();
+//            err.printStackTrace();
             return newFixedLengthResponse(Status.NOT_FOUND,"text/html","<html><body><h1>Static file not found</h1></body></html>");
         }
     }
@@ -100,7 +100,7 @@ public class NanoServer extends NanoHTTPD {
 //            System.out.println("********************** static fn: " + fn);
             return serve_file(assets.open(fn), getMimeTypeForFile(fn));
         }catch(IOException err){
-            err.printStackTrace();
+//            err.printStackTrace();
             return newFixedLengthResponse(Status.NOT_FOUND,"text/html","<html><body><h1>Static file not found</h1></body></html>");
         }
     }
