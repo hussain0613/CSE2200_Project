@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         b.setOnClickListener(v-> {
                 if(b.getText().equals("Start")){
-                    b.setText("Stop");
+//                    b.setText("Stop");
 //                    tv.setText("Server Running");
                     /*
                     * haven to start server
@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
                                 display_ip_addr = ipAddress;
                             }
                         }
-                        tv.setText("Server Running. Visit http://" + display_ip_addr+":"+server.getListeningPort() + " for transferring files");
+                        b.setText("Stop");
+                        tv.setText("Server Running.\nVisit http://" + display_ip_addr+":"+server.getListeningPort() + " for transferring files");
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getApplicationContext(), "Can't run server. Please try again, probably with different ip and port", Toast.LENGTH_LONG).show();
