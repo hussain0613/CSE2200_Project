@@ -7,4 +7,41 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- colors for the light_blue theme -->
+    <color name="light_blue_primary">#699cff</color>
+    <color name="light_blue_primary_variant">#286dcb</color>
+    <color name="light_blue_on_primary">#000000</color>
+    <color name="light_blue_backgound">#a0ccff</color>
+    <color name="light_blue_on_background">#34a2ed</color>
+
+    <color name="light_blue_secondary">#ffcd69</color>
+    <color name="light_blue_secondary_variant">#c99c3a</color>
+    <color name="light_blue_on_secondary">#000000</color>
+    <color name="light_blue_surface">#ffff99</color>
+    <color name="light_blue_on_surface">#c99c3a</color>
+
+    <!-- colors for the dark_blue_green theme -->
+    <color name="dark_blue_green_primary">#1c2a44</color>
+    <color name="dark_blue_green_primary_variant">#00001d</color>
+    <color name="dark_blue_green_on_primary">#ffffff</color>
+    <color name="dark_blue_green_background">#4f6389</color>
+    <color name="dark_blue_green_on_background">#00251a</color>
+
+
+    <!-- colors for the dark_green theme -->
+    <color name="dark_green_primary">#00695c</color>
+    <color name="dark_green_primary_variant">#439889</color>
+    <color name="dark_green_on_primary">#ffffff</color>
+    <color name="dark_green_background">#004d40</color>
+    <color name="dark_green_on_background">#439889</color>
+
+
+    <!-- colors for the dark_blue theme -->
+    <color name="dark_blue_primary">#0c1d40</color>
+    <color name="dark_blue_primary_variant">#00001b</color>
+    <color name="dark_blue_on_primary">#ffffff</color>
+    <color name="dark_blue_backgound">#39446b</color>
+    <color name="dark_blue_on_background">#00001b</color>
+
 </resources>
