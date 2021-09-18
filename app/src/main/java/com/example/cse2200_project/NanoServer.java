@@ -5,8 +5,11 @@ import android.content.res.AssetManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
@@ -120,17 +123,64 @@ public class NanoServer extends NanoHTTPD {
         resp.addHeader("content-type", "application/json");
         return resp;
     }
+
     private Response get_contents(IHTTPSession session){
+        JSONObject json_resp = new JSONObject();
+
         try{
-            String fn = "dummy_data.json";
-//            System.out.println("********************** static fn: " + fn);
-            Response resp = serve_file(assets.open(fn), getMimeTypeForFile(fn));
-            resp.addHeader("content-type", "application/json");
-//            System.out.println("************************ dummy_data.json found");
-            return resp;
-        }catch(IOException err){
-//            err.printStackTrace();
-            return newFixedLengthResponse(Status.NOT_FOUND,"application/json","{'status': 'failed', 'details':'dummy_data file not found'}");
+            String relative_path = session.getParameters().get("dir_path").get(0);
+            String root = String.valueOf(settings.get("shared_directory"));
+            String path = root + relative_path;
+
+
+            File dir = new File(path);
+            if(dir.exists()){
+                if(dir.isDirectory()){
+                    json_resp.put("status", "success");
+                    json_resp.put("details", "Fetched all available contents from directory " + relative_path);
+
+                    JSONObject data = new JSONObject();
+                    data.put("current_directory", relative_path);
+                    if(relative_path.equals("/")) data.put("parent_directory", null);
+                    else data.put("parent_directory", dir.getParent().substring(root.length()));
+
+
+                    JSONObject contents = new JSONObject();
+                    File[] files = dir.listFiles();
+                    if(files == null){
+                        return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \" could not load files \" }");
+                    }
+                    for(int i = 0; i<files.length; ++i){
+                        JSONObject details = new JSONObject();
+                        File file = files[i];
+                        details.put("name", file.getName());
+                        details.put("is_directory", file.isDirectory());
+
+                        if(file.isDirectory()) details.put("size", "-");
+                        else details.put("size", file.length()); // modify kore human readable size pathate hbe
+
+                        Date date = new Date(file.lastModified());
+                        details.put("date", date);
+                        contents.put(file.getPath().substring(root.length()+1), details); // might need to modify later
+                    }
+                    data.put("contents", contents);
+                    json_resp.put("data", data);
+
+                }else{
+                    json_resp.put("status", "failed");
+                    json_resp.put("details", "Not a directory!");
+                }
+            }else{
+               json_resp.put("status", "failed");
+               json_resp.put("details", "Directory does not exist");
+            }
+        }catch (JSONException err){
+            //err.printStackTrace();
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \""+err.toString()+ "\" }");
         }
+        catch(Exception err){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \""+err.toString() + "\" }");
+        }
+        return newFixedLengthResponse(Status.OK, "application/json", json_resp.toString());
     }
 }

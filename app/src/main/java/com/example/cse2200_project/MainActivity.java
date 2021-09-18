@@ -2,8 +2,10 @@ package com.example.cse2200_project;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.View;
@@ -31,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
         server = new NanoServer(settings, getAssets());
         wifimanager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         ipAddress = String.valueOf(wifimanager.getConnectionInfo().getIpAddress());
+
+
+        if(Build.VERSION.SDK_INT >= 23) {
+            String [] needed_permission = {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.MANAGE_EXTERNAL_STORAGE
+            };
+            requestPermissions(needed_permission, 138);
+        }
 
         b = findViewById(R.id.button);
         tv = findViewById(R.id.textView);
