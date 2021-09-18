@@ -5,8 +5,16 @@ import android.content.res.AssetManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Locale;
+
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
@@ -42,6 +50,9 @@ public class NanoServer extends NanoHTTPD {
         else if(uri.equals("/get_contents") || uri.equals("/get_contents/") ){
             resp = get_contents(session);
         }
+        else if(uri.equals("/download/") || uri.equals("/download")){
+            resp = download(session);
+        }
         else{
             resp = error_404_view(session);
         }
@@ -49,6 +60,20 @@ public class NanoServer extends NanoHTTPD {
     }
 
     private Response index_view(IHTTPSession session) {
+        String relative_path = session.getUri().substring(3);
+        String root = String.valueOf(settings.get("shared_directory"));
+        String path = root + relative_path;
+        File dir = new File(path);
+        if(dir.exists() && dir.isFile()){
+            Response resp = newFixedLengthResponse(Status.REDIRECT, "text/html", "");
+            try {
+                resp.addHeader("location", "/download/?path="+ URLEncoder.encode(relative_path, StandardCharsets.UTF_8.toString())+"&inline=true");
+            } catch (UnsupportedEncodingException e) {
+                return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"" + e.toString() + "\"}");
+            }
+            return resp;
+        }
+
         try{
             String fn = "www/index.html";
             return serve_file(assets.open(fn), getMimeTypeForFile(fn));
@@ -120,17 +145,114 @@ public class NanoServer extends NanoHTTPD {
         resp.addHeader("content-type", "application/json");
         return resp;
     }
+
     private Response get_contents(IHTTPSession session){
+        JSONObject json_resp = new JSONObject();
+
         try{
-            String fn = "dummy_data.json";
-//            System.out.println("********************** static fn: " + fn);
-            Response resp = serve_file(assets.open(fn), getMimeTypeForFile(fn));
-            resp.addHeader("content-type", "application/json");
-//            System.out.println("************************ dummy_data.json found");
-            return resp;
-        }catch(IOException err){
-//            err.printStackTrace();
-            return newFixedLengthResponse(Status.NOT_FOUND,"application/json","{'status': 'failed', 'details':'dummy_data file not found'}");
+            String relative_path = session.getParameters().get("dir_path").get(0);
+            String root = String.valueOf(settings.get("shared_directory"));
+            String path = root + relative_path;
+
+
+            File dir = new File(path);
+            if(dir.exists()){
+                if(dir.isDirectory()){
+                    json_resp.put("status", "success");
+                    json_resp.put("details", "Fetched all available contents from directory " + relative_path);
+
+                    JSONObject data = new JSONObject();
+                    data.put("current_directory", relative_path);
+                    if(relative_path.equals("/")) data.put("parent_directory", null);
+                    else data.put("parent_directory", dir.getParent().substring(root.length()));
+
+
+                    JSONObject contents = new JSONObject();
+                    File[] files = dir.listFiles();
+                    if(files == null){
+                        return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \" could not load files \" }");
+                    }
+                    for(int i = 0; i<files.length; ++i){
+                        JSONObject details = new JSONObject();
+                        File file = files[i];
+                        details.put("name", file.getName());
+                        details.put("is_directory", file.isDirectory());
+
+                        if(file.isDirectory()) details.put("size", "-");
+                        else details.put("size", get_human_readable_size(file.length()));
+
+                        Date date = new Date(file.lastModified());
+                        details.put("date", date);
+                        contents.put(file.getPath().substring(root.length()+1), details);
+                    }
+                    data.put("contents", contents);
+                    json_resp.put("data", data);
+
+                }else{
+                    json_resp.put("status", "failed");
+                    json_resp.put("details", "Not a directory!");
+                }
+            }else{
+               json_resp.put("status", "failed");
+               json_resp.put("details", "Directory does not exist");
+            }
         }
+        catch(Exception err){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \""+err.toString() + "\" }");
+        }
+        return newFixedLengthResponse(Status.OK, "application/json", json_resp.toString());
     }
+
+
+    private Response download(IHTTPSession session){
+        JSONObject json_resp = new JSONObject();
+
+        try{
+            String relative_path = session.getParameters().get("path").get(0);
+            Object is_inline = session.getParameters().get("inline");
+            String root = String.valueOf(settings.get("shared_directory"));
+            String path = root + relative_path;
+
+
+            File file = new File(path);
+            if(file.exists()){
+                if(file.isFile()){
+                    Response resp = serve_file(new FileInputStream(file), getMimeTypeForFile(relative_path));
+
+                    if(is_inline == null) resp.addHeader("content-disposition", "attachment; filename=\""+ file.getName() +"\"");
+                    else resp.addHeader("content-disposition", "inline; filename=\""+ file.getName() +"\"");
+
+                    return resp;
+                }else{
+                    json_resp.put("status", "failed");
+                    json_resp.put("details", "Not a file!");
+                }
+            }else{
+                json_resp.put("status", "failed");
+                json_resp.put("details", "File does not exist!");
+            }
+        }
+        catch(Exception err){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \""+err.toString() + "\" }");
+        }
+        return newFixedLengthResponse(Status.OK, "application/json", json_resp.toString());
+    }
+
+    String get_human_readable_size(long size_in_bytes){
+        String size = "";
+        if(size_in_bytes/(1000.0 * 1000.0 * 1000.0)> .9){
+            size += String.format(Locale.US, "%.2f GB", size_in_bytes/(1000.0 * 1000.0 * 1000.0));
+        }
+        else if(size_in_bytes/(1000.0 * 1000.0) > .9){
+            size += String.format(Locale.US, "%.2f MB", size_in_bytes/(1000.0 * 1000.0));;
+        }
+        else if(size_in_bytes/(1000.0) > .9){
+            size += String.format(Locale.US, "%.2f KB", size_in_bytes/(1000.0));;
+        }
+        else{
+            size += size_in_bytes + " B";
+        }
+        return size;
+    }
+
 }
