@@ -12,8 +12,12 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -52,6 +56,9 @@ public class NanoServer extends NanoHTTPD {
         }
         else if(uri.equals("/download/") || uri.equals("/download")){
             resp = download(session);
+        }
+        else if(uri.equals("/get_search_result/") || uri.equals("/get_search_result")){
+            resp = get_search_result(session);
         }
         else{
             resp = error_404_view(session);
@@ -253,6 +260,77 @@ public class NanoServer extends NanoHTTPD {
             size += size_in_bytes + " B";
         }
         return size;
+    }
+
+
+    private Response get_search_result(IHTTPSession session){
+        JSONObject json_resp = new JSONObject();
+
+        try{
+            String query = session.getParameters().get("query").get(0);
+            query = query.toLowerCase(Locale.ROOT);
+            List<String> dir_path_query = session.getParameters().get("dir_path");;
+            String relative_path = "";
+            if(dir_path_query != null) relative_path = dir_path_query.get(0);
+
+            String root = String.valueOf(settings.get("shared_directory"));
+            String path = root + relative_path;
+
+
+            File dir = new File(path);
+            if(dir.exists()){
+                if(dir.isDirectory()){
+                    json_resp.put("status", "success");
+                    json_resp.put("details", "Fetched all available contents from directory " + relative_path);
+
+                    JSONObject data = new JSONObject();
+                    data.put("current_directory", "search result for '" + query + "'");
+                    data.put("parent_directory", null);
+
+
+
+                    JSONObject contents = new JSONObject();
+                    File[] files_arr = dir.listFiles();
+                    if(files_arr == null){
+                        return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \" could not load files \" }");
+                    }
+                    Queue<File> files = new LinkedList<>(Arrays.asList(files_arr));
+                    while(!files.isEmpty()) {
+
+                        File file = files.remove();
+                        if(file.isDirectory()){
+                            File[] sub_dir_contents = file.listFiles();
+                            if(sub_dir_contents!=null)files.addAll(Arrays.asList(sub_dir_contents));
+                        }
+                        if (file.getName().toLowerCase(Locale.ROOT).contains(query)) {
+                            JSONObject details = new JSONObject();
+                            details.put("name", file.getName());
+                            details.put("is_directory", file.isDirectory());
+                            details.put("directory", file.getParent().substring(root.length()));
+                            if (file.isDirectory()) {
+                                details.put("size", "-");
+                            } else details.put("size", get_human_readable_size(file.length()));
+
+                            Date date = new Date(file.lastModified());
+                            details.put("date", date);
+                            contents.put(file.getPath().substring(root.length() + 1), details);
+                        }
+                    }
+                    data.put("contents", contents);
+                    json_resp.put("data", data);
+                }else{
+                    json_resp.put("status", "failed");
+                    json_resp.put("details", "Not a directory!");
+                }
+            }else{
+                json_resp.put("status", "failed");
+                json_resp.put("details", "Directory does not exist");
+            }
+        }
+        catch(Exception err){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \""+err.toString() + "\" }");
+        }
+        return newFixedLengthResponse(Status.OK, "application/json", json_resp.toString());
     }
 
 }
