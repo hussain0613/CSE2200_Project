@@ -1,6 +1,7 @@
 package com.example.cse2200_project;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.Manifest;
 import android.content.Intent;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         wifimanager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
@@ -106,6 +109,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopService(notification_intent);
-        server.stop();
+        if(server!= null) server.stop();
     }
 }
