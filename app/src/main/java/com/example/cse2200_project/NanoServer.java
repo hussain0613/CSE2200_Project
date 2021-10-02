@@ -1,7 +1,11 @@
 package com.example.cse2200_project;
 
 import android.content.res.AssetManager;
+import android.widget.Toast;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 
+import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
@@ -60,9 +65,9 @@ public class NanoServer extends NanoHTTPD {
         else if(uri.equals("/get_search_result/") || uri.equals("/get_search_result")){
             resp = get_search_result(session);
         }
-        //else if(uri.equals("/upload_files/") || uri.equals("/upload_files")){
-
-        //}
+        else if(uri.equals("/upload_files/") || uri.equals("/upload_files")){
+            resp = upload(session);
+        }
         else if(uri.equals("/create_directory/") || uri.equals("/create_directory")){
             resp = create_directory(session);
         }
@@ -372,6 +377,58 @@ public class NanoServer extends NanoHTTPD {
                 }else{
                     resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Could not create new directory!\"}");
                 }
+            }else{
+                resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Not a directory!\"}");
+            }
+        }else{
+            resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Directory not found!\"}");
+        }
+
+        return resp;
+    }
+
+    private Response upload(IHTTPSession session){
+        Method method = session.getMethod();
+        if(!method.equals(Method.POST)){
+            return newFixedLengthResponse(Status.METHOD_NOT_ALLOWED, "application/json", "");
+        }
+        Response resp;
+        boolean upload_permission = (boolean) settings.get("upload_permission");
+        if(!upload_permission){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Permission Denied!\"}");
+        }
+        
+        List<FileItem> files;
+        try{
+            files = new NanoFileUpload(new DiskFileItemFactory()).parseRequest(session);
+        }catch (FileUploadException err){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Upload failed!\"}");
+        }
+
+        List<String> dir_path_query = session.getParameters().get("dir_path");
+        String relative_path = "";
+        if (dir_path_query != null) relative_path = dir_path_query.get(0);
+
+        String root = String.valueOf(settings.get("shared_directory"));
+        String path = root + relative_path;
+
+
+        File dir = new File(path);
+        int count = 0;
+
+        if(dir.exists()){
+            if(dir.isDirectory()){
+                for(int i = 0; i<files.size(); ++i){
+                    FileItem fileitem = files.get(i);
+                    try{
+                        File file = new File(path, fileitem.getName());
+                        fileitem.write(file);
+                        ++count;
+                    }catch (Exception err){
+                        Toast.makeText(settings.context, "Could not save file '"+fileitem.getName()+"'!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"success\", \"details\": \"Files uploaded. ("+ count + "/" + files.size() +")\"}");
             }else{
                 resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Not a directory!\"}");
             }
