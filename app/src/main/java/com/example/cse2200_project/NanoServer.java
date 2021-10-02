@@ -60,6 +60,12 @@ public class NanoServer extends NanoHTTPD {
         else if(uri.equals("/get_search_result/") || uri.equals("/get_search_result")){
             resp = get_search_result(session);
         }
+        //else if(uri.equals("/upload_files/") || uri.equals("/upload_files")){
+
+        //}
+        else if(uri.equals("/create_directory/") || uri.equals("/create_directory")){
+            resp = create_directory(session);
+        }
         else{
             resp = error_404_view(session);
         }
@@ -251,10 +257,10 @@ public class NanoServer extends NanoHTTPD {
             size += String.format(Locale.US, "%.2f GB", size_in_bytes/(1000.0 * 1000.0 * 1000.0));
         }
         else if(size_in_bytes/(1000.0 * 1000.0) > .9){
-            size += String.format(Locale.US, "%.2f MB", size_in_bytes/(1000.0 * 1000.0));;
+            size += String.format(Locale.US, "%.2f MB", size_in_bytes/(1000.0 * 1000.0));
         }
         else if(size_in_bytes/(1000.0) > .9){
-            size += String.format(Locale.US, "%.2f KB", size_in_bytes/(1000.0));;
+            size += String.format(Locale.US, "%.2f KB", size_in_bytes/(1000.0));
         }
         else{
             size += size_in_bytes + " B";
@@ -269,7 +275,7 @@ public class NanoServer extends NanoHTTPD {
         try{
             String query = session.getParameters().get("query").get(0);
             query = query.toLowerCase(Locale.ROOT);
-            List<String> dir_path_query = session.getParameters().get("dir_path");;
+            List<String> dir_path_query = session.getParameters().get("dir_path");
             String relative_path = "";
             if(dir_path_query != null) relative_path = dir_path_query.get(0);
 
@@ -333,4 +339,46 @@ public class NanoServer extends NanoHTTPD {
         return newFixedLengthResponse(Status.OK, "application/json", json_resp.toString());
     }
 
+    private Response create_directory(IHTTPSession session){
+        Method method = session.getMethod();
+        if(!method.equals(Method.POST)){
+            return newFixedLengthResponse(Status.METHOD_NOT_ALLOWED, "application/json", "");
+        }
+        Response resp;
+        boolean upload_permission = (boolean) settings.get("upload_permission");
+        if(!upload_permission){
+            return newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Permission Denied!\"}");
+        }
+
+        List<String> dir_path_query = session.getParameters().get("dir_path");
+        String relative_path = "";
+        if (dir_path_query != null) relative_path = dir_path_query.get(0);
+
+        List<String> new_dir_name_query = session.getParameters().get("new_dir_name");
+        String new_dir_name = "";
+        if (new_dir_name_query != null) new_dir_name = new_dir_name_query.get(0);
+
+        String root = String.valueOf(settings.get("shared_directory"));
+        String path = root + relative_path;
+
+
+        File dir = new File(path);
+        File new_dir = new File(path + "/" + new_dir_name);
+
+        if(dir.exists()){
+            if(dir.isDirectory()){
+                if(new_dir.mkdir()){
+                    resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"success\", \"details\": \"New directory has been created!\"}");
+                }else{
+                    resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Could not create new directory!\"}");
+                }
+            }else{
+                resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Not a directory!\"}");
+            }
+        }else{
+            resp = newFixedLengthResponse(Status.OK, "application/json", "{\"status\": \"failed\", \"details\": \"Directory not found!\"}");
+        }
+
+        return resp;
+    }
 }
