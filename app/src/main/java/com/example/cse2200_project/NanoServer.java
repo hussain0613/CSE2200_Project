@@ -237,8 +237,9 @@ public class NanoServer extends NanoHTTPD {
                 if(file.isFile()){
                     Response resp = serve_file(new FileInputStream(file), getMimeTypeForFile(relative_path));
 
-                    if(is_inline == null) resp.addHeader("content-disposition", "attachment; filename=\""+ file.getName() +"\"");
-                    else resp.addHeader("content-disposition", "inline; filename=\""+ file.getName() +"\"");
+                    //if(is_inline == null) resp.addHeader("content-disposition", "attachment; filename=\""+ file.getName() +"\"");
+                    //else
+                    resp.addHeader("content-disposition", "inline; filename=\""+ file.getName() +"\"");
 
                     return resp;
                 }else{

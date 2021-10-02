@@ -54,24 +54,23 @@ function upload_files(formdata){
     let xhr = new XMLHttpRequest()
     xhr.open("post", "/upload_files/?dir_path="+document.location.pathname.substring(3), true)
     
-    let total_size = 0.0
     let msg_cnt = add_msg("preparing upload")
     
     xhr.upload.onloadstart = function(ev){
         update_msg(msg_cnt, "starting upload")
-        total_size = Math.round(ev.total / (10**6)) // in MB
-        total_size = total_size.toFixed(2) // rounding up to 2 decimal points
     }
     xhr.upload.onprogress = function(ev){
         var uploaded = ev.loaded/(10**6) // in MB
         var percentage = ev.loaded/ev.total * 100
-        update_msg(msg_cnt, `uploaded: \t ${uploaded.toFixed(2)} of ${total_size}MB \t -- \t ${percentage.toFixed(2)}%`)
+        var total = ev.total / (10**6);
+        update_msg(msg_cnt, `uploaded: \t ${uploaded.toFixed(2)} of ${total.toFixed(2)}MB \t -- \t ${percentage.toFixed(2)}%`)
     }
     xhr.upload.onloadend = function(ev){
         var uploaded = ev.loaded/(10**6) // in MB
         var percentage = ev.loaded/ev.total * 100
-        
-        update_msg(msg_cnt, `upload complete \t ${uploaded.toFixed(2)} of ${total_size}MB \t -- \t ${percentage.toFixed(2)}%`)
+        var total = ev.total / (10**6);
+
+        update_msg(msg_cnt, `upload complete \t ${uploaded.toFixed(2)} of ${total.toFixed(2)}MB \t -- \t ${percentage.toFixed(2)}%`)
     }
 
     msg_cnt2 = add_msg("Server reply: ")

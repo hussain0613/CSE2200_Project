@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import java.io.File;
 
 public class SettingsActivity extends AppCompatActivity {
     EditText shared_dir_et, host_et, port_et;
@@ -91,7 +94,14 @@ public class SettingsActivity extends AppCompatActivity {
         mod_tb.setChecked((boolean) settings.get("modify_permission"));
     }
     void set_to_file(){
-        settings.set("shared_directory", shared_dir_et.getText().toString());
+        File root_dir = new File(shared_dir_et.getText().toString());
+        if(!(root_dir.exists() && root_dir.isDirectory())){
+            Toast.makeText(this, "Settings not saved! Please select another directory!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        settings.set("shared_directory", root_dir);
+
         settings.set("host", host_et.getText().toString());
         settings.set("port", Integer.parseInt(port_et.getText().toString()));
 
