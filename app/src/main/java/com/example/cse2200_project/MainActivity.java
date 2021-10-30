@@ -5,16 +5,18 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.Formatter;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     NanoServer server;
     Settings settings;
 
-    WifiManager wifimanager;
     String ipAddress;
 
     Intent notification_intent;
@@ -39,9 +40,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
-        wifimanager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-
 
         notification_intent = new Intent(this, ForegroundService.class);
 
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         button.setOnClickListener(v-> {
                 if(buttonText.equals("Start")){
-                    ipAddress = Formatter.formatIpAddress(wifimanager.getConnectionInfo().getIpAddress());
+                    ipAddress = getIpAddress();
                     settings = new Settings(getApplicationContext());
                     server = new NanoServer(settings, getAssets());
 
@@ -110,5 +108,36 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         stopService(notification_intent);
         if(server!= null) server.stop();
+    }
+
+    /**
+     * From StackOverflow (obviously modified to suit my need)
+     * URL: https://stackoverflow.com/a/55781715\
+     * "... This will return the ip address of your device, as long as you've turned on the hotspot." - OP
+     * my comment: This will return the ip address of the 'wlan0' network interface or "0.0.0.0"
+     */
+    private String getIpAddress() {
+        String ip = "0.0.0.0";
+        try {
+            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (enumNetworkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = enumNetworkInterfaces.nextElement();
+                if(networkInterface.getName().equals("wlan0")) {
+                    Enumeration<InetAddress> enumInetAddress = networkInterface.getInetAddresses();
+                    while (enumInetAddress.hasMoreElements()) {
+                        InetAddress inetAddress = enumInetAddress.nextElement();
+                        if (inetAddress.isSiteLocalAddress()) {
+                            ip = inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+
+        } catch (SocketException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(this, "Could not get device ip.", Toast.LENGTH_SHORT).show();
+        }
+        return ip;
     }
 }
